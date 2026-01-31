@@ -1,6 +1,6 @@
 # 📊 WeFitness Data Platform
 
-Este repositório contém uma solução completa de **Engenharia de Analytics** desenvolvida para a gestão de dados de check-ins e repasses financeiros da rede **WeFitness**, uma rede de academias fictícias criada para gerar esse fluxo. O projeto simula o fluxo real de dados entre uma plataforma de benefícios e suas academias parceiras.
+Este repositório contém uma solução completa de **Engenharia de Analytics** desenvolvida para a gestão de dados de check-ins e repasses financeiros da rede **WeFitness**, uma rede de academias fictícia criada para gerar esse fluxo. O projeto simula o fluxo real de dados entre uma plataforma de benefícios e suas academias parceiras.
 
 ## 🎯 Objetivo do Projeto
 O objetivo principal é transformar dados brutos e desestruturados em um **Data Warehouse otimizado**, permitindo que o time de operações realize análises precisas sobre faturamento, engajamento por plano e volumetria por modalidade.
