@@ -1,12 +1,10 @@
 import streamlit as st
-import sqlite3
 import pandas as pd
 import plotly.express as px
 
 # Configuração da página
 st.set_page_config(page_title="WeFitness Analytics", layout="wide")
 
-# Estilo CSS para letras simples e cores sóbrias
 st.markdown("""
     <style>
     .main { background-color: #F5F5F5; }
@@ -14,15 +12,17 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# Conexão com o Warehouse
-conn = sqlite3.connect('wefitness_warehouse.db')
-
 # Título
 st.title("📊 Dashboard de Performance - Rede WeFitness")
 
-# --- CARGA DE DADOS ---
-df_fato = pd.read_sql("SELECT * FROM fato_checkin", conn)
-df_unidade = pd.read_sql("SELECT * FROM dim_unidade", conn)
+# --- CARGA DE DADOS (USANDO PARQUET PARA FUNCIONAR ONLINE) ---
+# Lendo os arquivos que você subiu para o GitHub
+df_fato = pd.read_parquet('wefitness_fato_final.parquet')
+
+# Para as unidades, como não tínhamos parquet dela, vamos simular os nomes 
+# ou você pode subir a dim_unidade em parquet também. 
+# Por hora, vamos usar a fato que já tem os IDs.
+# Se você tiver a dim_unidade.parquet, use: df_unidade = pd.read_parquet('dim_unidade.parquet')
 
 # 1. KPIs Principais
 col1, col2, col3 = st.columns(3)
@@ -39,24 +39,15 @@ st.markdown("---")
 col_esq, col_dir = st.columns(2)
 
 with col_esq:
-    st.subheader("Preferência por Modalidade")
-    df_cat = pd.merge(df_fato, df_unidade, on='id_unidade')
-    pizza_data = df_cat.groupby('categoria_servico').size().reset_index(name='quantidade')
-    
-    fig_pizza = px.pie(pizza_data, values='quantidade', names='categoria_servico',
+    st.subheader("Volume de Check-ins")
+    # Gráfico simples de pizza usando a coluna que tiver disponível
+    fig_pizza = px.pie(df_fato, values='valor_repasse', names='id_unidade',
                  color_discrete_sequence=px.colors.sequential.Blues_r,
                  hole=0.4)
-    fig_pizza.update_traces(textposition='inside', textinfo='percent+label')
     st.plotly_chart(fig_pizza, use_container_width=True)
 
 with col_dir:
-    st.subheader("Faturamento por Unidade")
-    bar_data = df_cat.groupby('unidade_wefitness')['valor_repasse'].sum().sort_values(ascending=True).reset_index()
-    
-    fig_bar = px.bar(bar_data, x='valor_repasse', y='unidade_wefitness', 
-                     orientation='h',
-                     color_discrete_sequence=['#4A90E2'])
-    fig_bar.update_layout(xaxis_title="Faturamento (R$)", yaxis_title=None)
+    st.subheader("Faturamento por ID de Unidade")
+    bar_data = df_fato.groupby('id_unidade')['valor_repasse'].sum().reset_index()
+    fig_bar = px.bar(bar_data, x='valor_repasse', y='id_unidade', orientation='h')
     st.plotly_chart(fig_bar, use_container_width=True)
-
-conn.close()
